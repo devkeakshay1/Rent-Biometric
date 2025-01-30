@@ -9,367 +9,392 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Header Refined Design */
+        /* Color Palette */
         :root {
-            --primary-color: #2575fc;
-            --secondary-color: #6a11cb;
-            --text-color: #333;
-            --background-color: #f4f6f9;
-            --header-bg: #f0f2f5;
-            --header-text: #1a1a1a;
-            --header-icon-color: #2575fc;
-            --header-hover-bg: rgba(37, 117, 252, 0.1);
-            --header-shadow: rgba(0, 0, 0, 0.08);
-            --notification-bg: #dc3545;
+            --primary-color: #3498db;      /* Soft Blue */
+            --secondary-color: #2ecc71;    /* Emerald Green */
+            --accent-color: #34495e;       /* Dark Blue-Gray */
+            --background-light: #f4f6f7;   /* Light Gray */
+            --text-color: #2c3e50;         /* Charcoal */
+            --white: #ffffff;
+            --danger-color: #e74c3c;       /* Soft Red */
+            --warning-color: #f39c12;      /* Warm Orange */
+            --success-color: #27ae60;      /* Rich Green */
         }
 
+        /* Global Resets */
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Header Styling */
         .fixed-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: var(--white);
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.85);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--white);
+            background-color: rgba(255,255,255,0.15);
+        }
+
+        /* Search and Filter Icons */
+        .search-icon, .filter-icon {
+            color: rgba(255,255,255,0.85);
+        }
+
+        .search-icon:hover, .filter-icon:hover {
+            color: var(--white);
+            background-color: rgba(255,255,255,0.15);
+        }
+
+        /* Dropdown Styling */
+        .search-dropdown, .filter-dropdown {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .dropdown-header {
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #2c3e50;
+            border-color: #2c3e50;
+        }
+
+        /* Card Styling */
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-bottom: none;
+        }
+
+        /* Form Inputs */
+        .form-control {
+            border-color: rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        /* Status and Badge Colors */
+        .badge-primary {
+            background-color: var(--primary-color);
+        }
+
+        .badge-success {
+            background-color: var(--success-color);
+        }
+
+        .badge-danger {
+            background-color: var(--danger-color);
+        }
+
+        .badge-warning {
+            background-color: var(--warning-color);
+        }
+
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+        }
+        
+        /* Enhanced Header Styling */
+        .fixed-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
             position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
-            background-color: var(--header-bg);
-            box-shadow: 0 2px 4px var(--header-shadow);
+            top: 0;
             z-index: 1000;
-            transition: all 0.2s ease;
+            height: 60px;
         }
 
         .header-container {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            height: 100%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 10px 15px;
+            padding: 0 15px;
         }
 
         .header-nav {
             display: flex;
             align-items: center;
-            gap: 10px;
+            width: 100%;
         }
 
-        .header-nav a {
-            color: var(--text-color);
+        .nav-link {
+            color: rgba(255,255,255,0.8);
             text-decoration: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            margin-right: 15px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
             position: relative;
         }
 
-        .header-nav a i {
-            font-size: 0.9rem;
-            color: var(--primary-color);
-            margin-right: 4px;
+        .nav-link:hover {
+            color: white;
+            background-color: rgba(255,255,255,0.2);
         }
 
-        .header-nav a:hover {
-            background-color: rgba(37, 117, 252, 0.05);
-            color: var(--primary-color);
-        }
-
-        .search-container {
-            display: flex;
-            align-items: center;
-            margin-right: 10px;
-        }
-
-        .search-form {
-            display: flex;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.04);
-            border-radius: 20px;
-            overflow: hidden;
-            max-width: 250px;
-            width: 40px;
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: white;
             transition: width 0.3s ease;
         }
 
-        .search-input {
-            border: none;
-            background: transparent;
-            color: var(--text-color);
-            padding: 6px 12px;
-            font-size: 0.85rem;
-            width: 0;
-            opacity: 0;
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .search-dropdown-trigger {
+            margin-left: auto;
+            cursor: pointer;
+            color: rgba(255,255,255,0.8);
             transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 50%;
         }
 
-        .search-button {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            padding: 6px 12px;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .search-form:hover,
-        .search-form:focus-within {
-            width: 250px;
-        }
-
-        .search-form:hover .search-input,
-        .search-form:focus-within .search-input {
-            width: calc(100% - 40px);
-            opacity: 1;
-        }
-
-        .search-button:hover {
-            transform: scale(1.1);
-        }
-
-        .header-icons {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .header-notification {
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .header-notification i {
-            color: var(--header-icon-color);
-            font-size: 1.2rem;
-        }
-
-        .header-notification .notification-badge {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background-color: var(--notification-bg);
+        .search-dropdown-trigger:hover {
             color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-        }
-
-        .header-notification:hover {
+            background-color: rgba(255,255,255,0.2);
             transform: scale(1.1);
-        }
-
-        .notification-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-width: 300px;
-            padding: 10px;
-            z-index: 1000;
-            margin-top: 8px;
-            display: none;
-        }
-
-        .notification-dropdown.show {
-            display: block;
-        }
-
-        .notification-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .notification-header h4 {
-            margin: 0;
-        }
-
-        .notification-header a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 0.8rem;
-        }
-
-        .notification-list {
-            padding: 10px 0;
-        }
-
-        .notification-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            transition: background-color 0.2s ease;
-        }
-
-        .notification-item:hover {
-            background-color: rgba(0,0,0,0.04);
-        }
-
-        .notification-item.unread {
-            background-color: rgba(0,0,0,0.02);
-        }
-
-        .notification-icon {
-            margin-right: 10px;
-            font-size: 1.2rem;
-            color: var(--primary-color);
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-content p {
-            margin: 0;
-            font-size: 0.9rem;
-        }
-
-        .notification-time {
-            font-size: 0.8rem;
-            color: rgba(0,0,0,0.5);
-        }
-
-        .notification-actions {
-            margin-left: 10px;
-        }
-
-        .btn-read {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-
-        .notification-footer {
-            padding: 10px;
-            border-top: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .notification-footer a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 0.8rem;
-        }
-
-        .profile-dropdown {
-            position: relative;
-        }
-
-        .profile-trigger {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 10px;
-            border-radius: 6px;
-            background-color: var(--header-hover-bg);
-            transition: background-color 0.2s ease;
-            cursor: pointer;
-        }
-
-        .profile-trigger:hover {
-            background-color: var(--header-hover-bg);
-        }
-
-        .profile-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--primary-color);
-        }
-
-        .profile-username {
-            color: var(--header-text);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .profile-trigger i {
-            color: var(--header-icon-color);
-        }
-
-        .profile-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-width: 200px;
-            padding: 10px;
-            z-index: 1000;
-            margin-top: 8px;
-        }
-
-        .profile-menu a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            color: var(--header-text);
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background-color 0.2s ease;
-        }
-
-        .profile-menu a i {
-            color: var(--header-icon-color);
-            font-size: 1rem;
-        }
-
-        .profile-menu a:hover {
-            background-color: var(--header-hover-bg);
         }
 
         /* Responsive Adjustments */
         @media (max-width: 768px) {
+            .fixed-header {
+                height: 50px;
+            }
+
             .header-container {
-                flex-direction: column;
-                padding: 10px;
-                gap: 10px;
+                padding: 0 10px;
             }
 
-            .header-nav {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .header-nav a {
-                margin: 0 5px 5px 0;
+            .nav-link {
+                font-size: 0.9em;
+                margin-right: 10px;
+                padding: 6px 10px;
             }
         }
 
-        @media (max-width: 480px) {
-            .header-nav a {
-                font-size: 0.8rem;
-                padding: 4px 8px;
-            }
+        /* Subtle Hover Effect */
+        .fixed-header:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        /* Search and Filter Icons Styling */
+        .search-filter-container {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
 
-            .search-form {
-                max-width: 200px;
+        .search-icon, .filter-icon {
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            margin-left: 15px;
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 50%;
+        }
+
+        .search-icon:hover, .filter-icon:hover {
+            color: white;
+            background-color: rgba(255,255,255,0.2);
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .search-icon.active, .filter-icon.active {
+            color: white;
+            background-color: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        /* Notification Dot */
+        .icon-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: #ff4d4d;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* Search and Filter Dropdowns */
+        .search-dropdown, .filter-dropdown {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 350px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            z-index: 1100;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-dropdown.show, .filter-dropdown.show {
+            display: block;
+            animation: dropdownFadeIn 0.3s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f6f9;
+
+        .dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
         }
-        {% if user.is_authenticated and request.path != '/login/' %}
-        body {
-            padding-top: 80px; /* Increased space for header */
+
+        .dropdown-close {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 1.2em;
         }
-        {% endif %}
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .search-dropdown, .filter-dropdown {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: auto;
+            }
+        }
+        
+        /* Advanced Search Dropdown */
+        .advanced-search-dropdown {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 450px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            z-index: 1000;
+            display: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .advanced-search-dropdown.show {
+            display: block;
+        }
+
+        .advanced-search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .quick-search-section,
+        .advanced-filters-section {
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            background-color: rgba(0,0,0,0.02);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .search-type-select {
+            max-width: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .advanced-search-dropdown {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: auto;
+            }
+        }
+        
+        /* Footer Styling */
         .site-footer {
             background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             color: white;
@@ -435,6 +460,320 @@
         .contact-info i {
             margin-right: 10px;
         }
+        
+        /* Location and User Profile Icons Styling */
+        .header-location-user-container {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+        }
+
+        .header-location, .header-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+            padding: 6px 10px;
+            border-radius: 20px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .header-location i, .header-profile i {
+            font-size: 1rem;
+            margin-right: 6px;
+        }
+
+        .header-location:hover, .header-profile:hover {
+            background-color: rgba(255,255,255,0.15);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .header-location-text, .header-profile-text {
+            font-size: 0.9rem;
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-location-dropdown, .header-profile-dropdown {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 300px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            z-index: 1100;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .header-location-dropdown.show, 
+        .header-profile-dropdown.show {
+            display: block;
+            animation: dropdownFadeIn 0.3s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .location-profile-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .location-profile-dropdown-close {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .header-location-user-container {
+                margin-left: 10px;
+            }
+
+            .header-location, .header-profile {
+                padding: 4px 8px;
+            }
+
+            .header-location i, .header-profile i {
+                font-size: 0.9rem;
+                margin-right: 4px;
+            }
+
+            .header-location-text, .header-profile-text {
+                font-size: 0.8rem;
+                max-width: 80px;
+            }
+
+            .header-location-dropdown, 
+            .header-profile-dropdown {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: auto;
+            }
+        }
+        
+        /* Notifications Styling */
+        .header-notifications {
+            position: relative;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .notifications-icon {
+            color: rgba(255,255,255,0.85);
+            transition: all 0.3s ease;
+            padding: 6px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .notifications-icon:hover {
+            background-color: rgba(255,255,255,0.15);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .notifications-badge {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .notifications-dropdown {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 350px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            z-index: 1100;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .notifications-dropdown.show {
+            display: block;
+            animation: dropdownFadeIn 0.3s ease;
+        }
+
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .notifications-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: start;
+            padding: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background-color: rgba(0,0,0,0.03);
+        }
+
+        .notification-item.unread {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .notification-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .notification-content {
+            flex-grow: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .notification-description {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .notification-time {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .notifications-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .mark-all-read {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .mark-all-read:hover {
+            color: var(--accent-color);
+        }
+
+        .view-all-notifications {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .view-all-notifications:hover {
+            color: var(--primary-color);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .notifications-dropdown {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: auto;
+            }
+        }
+        
+        /* Profile Dropdown Styling */
+        .header-profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            width: 250px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        .profile-dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .profile-dropdown-item:hover {
+            background-color: var(--background-light);
+        }
+
+        .profile-dropdown-item i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        .logout-item {
+            color: var(--danger-color);
+            border-top: 1px solid rgba(0,0,0,0.1);
+            margin-top: 10px;
+            padding-top: 15px;
+        }
+
+        .logout-item:hover {
+            background-color: rgba(231, 76, 60, 0.05);
+        }
+
+        .logout-item i {
+            color: var(--danger-color);
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -449,56 +788,25 @@
                 <a href="{% url 'create_lead' %}" class="nav-link">
                     <i class="fas fa-plus-circle"></i> Create Lead
                 </a>
-                <div class="search-container">
-                    <form action="{% url 'home' %}" method="GET" class="search-form">
-                        <input type="text" 
-                               name="query" 
-                               placeholder="Search leads, biometrics..." 
-                               class="search-input" 
-                               autocomplete="off">
-                        <button type="submit" class="search-button">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
+                <div class="search-filter-container">
+                    <i class="fas fa-search search-icon" onclick="toggleSearchDropdown()"></i>
+                    <i class="fas fa-filter filter-icon" onclick="toggleFilterDropdown()"></i>
+                </div>
+                <div class="header-location-user-container">
+                    <div class="header-location" onclick="toggleLocationDropdown()">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span class="header-location-text">Location</span>
+                    </div>
+                    <div class="header-profile" onclick="toggleProfileDropdown()">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="header-profile-text">{{ user.username }}</span>
+                    </div>
+                    <div class="header-notifications" onclick="toggleNotificationsDropdown()">
+                        <i class="fas fa-bell notifications-icon"></i>
+                        <span class="notifications-badge">3</span>
+                    </div>
                 </div>
             </nav>
-            
-            <div class="header-icons">
-                <div class="header-notification" onclick="toggleNotifications()">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                    <div id="notificationDropdown" class="notification-dropdown">
-                        <div class="notification-header">
-                            <h4>Notifications</h4>
-                            <a href="#" class="mark-all-read">Mark all as read</a>
-                        </div>
-                        <div class="notification-list">
-                        </div>
-                        <div class="notification-footer">
-                            <a href="{% url 'lead_history' %}" class="view-all-notifications">View All Notifications</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="profile-container">
-                    <div class="profile-dropdown">
-                        <a href="#" class="profile-trigger" onclick="toggleDropdown()">
-                            <img src="{% static 'images/default-avatar.svg' %}" 
-                                 alt="{{ user.username }}'s avatar" 
-                                 class="profile-avatar">
-                            <span class="profile-username">{{ user.username }}</span>
-                            <i class="fas fa-caret-down"></i>
-                        </a>
-                        <div id="userDropdown" class="profile-menu" style="display: none;">
-                            <a href="{% url 'user_details' %}">
-                                <i class="fas fa-user-circle"></i> Profile
-                            </a>
-                            <a href="{% url 'logout' %}">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </header>
     {% endif %}
@@ -569,12 +877,116 @@
     </footer>
     {% endif %}
 
+    {% if user.is_authenticated and request.path != '/login/' %}
+    <div id="globalSearchDropdown" class="search-dropdown">
+        <div class="dropdown-header">
+            <h4>Search</h4>
+            <button class="dropdown-close" onclick="toggleSearchDropdown()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form action="{% url 'global_search' %}" method="GET" class="search-dropdown-form">
+            <div class="form-group">
+                <label>Search across all models...</label>
+                <input type="text" 
+                       name="query" 
+                       placeholder="Search leads, biometrics..." 
+                       class="form-control" 
+                       autocomplete="off">
+            </div>
+            <div class="search-dropdown-actions">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="filterDropdown" class="filter-dropdown">
+        <div class="dropdown-header">
+            <h4>Filter</h4>
+            <button class="dropdown-close" onclick="toggleFilterDropdown()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form action="{% url 'global_search' %}" method="GET" class="filter-dropdown-form">
+            <div class="form-group">
+                <label>Filter by status...</label>
+                <select name="status" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="new">New</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="filter-dropdown-actions">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if user.is_authenticated and request.path != '/login/' %}
+    <div id="headerLocationDropdown" class="header-location-dropdown">
+        <div class="location-profile-dropdown-header">
+            <h4>Location</h4>
+            <button class="location-profile-dropdown-close" onclick="toggleLocationDropdown()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="location-profile-dropdown-content">
+            <p>Location content</p>
+        </div>
+    </div>
+
+    <div id="headerProfileDropdown" class="header-profile-dropdown">
+        <div class="location-profile-dropdown-header">
+            <h4>Profile</h4>
+            <button class="location-profile-dropdown-close" onclick="toggleProfileDropdown()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="location-profile-dropdown-content">
+            <div class="profile-dropdown-item" onclick="window.location.href='{% url 'user_profile' %}'">
+                <i class="fas fa-user"></i> My Profile
+            </div>
+            <div class="profile-dropdown-item" onclick="window.location.href='{% url 'change_password' %}'">
+                <i class="fas fa-lock"></i> Change Password
+            </div>
+            <div class="profile-dropdown-item logout-item" onclick="window.location.href='{% url 'logout' %}'">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if user.is_authenticated and request.path != '/login/' %}
+    <div id="headerNotificationsDropdown" class="notifications-dropdown">
+        <div class="notifications-header">
+            <h4>Notifications</h4>
+            <button class="dropdown-close" onclick="toggleNotificationsDropdown()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notifications-list">
+            <!-- Notification items will be populated here -->
+        </div>
+        <div class="notifications-actions">
+            <span class="mark-all-read" onclick="markAllNotificationsAsRead()">Mark all as read</span>
+            <a href="{% url 'lead_history' %}" class="view-all-notifications">View all notifications</a>
+        </div>
+    </div>
+    {% endif %}
+
     {% block extra_scripts %}
     <script>
         // Fetch unread notifications count
         function updateNotificationBadge() {
             // Only attempt to fetch if user is authenticated
-            if (document.querySelector('.header-notification')) {
+            if (document.querySelector('.header-notifications')) {
                 fetch("{% url 'unread_notifications_count' %}", {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -587,7 +999,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    const badge = document.querySelector('.notification-badge');
+                    const badge = document.querySelector('.notifications-badge');
                     if (badge) {
                         badge.textContent = data.unread_count;
                         badge.style.display = data.unread_count > 0 ? 'flex' : 'none';
@@ -602,16 +1014,91 @@
         // Update badge on page load
         document.addEventListener('DOMContentLoaded', updateNotificationBadge);
 
-        function toggleNotifications() {
-            var dropdown = document.getElementById('notificationDropdown');
-            dropdown.classList.toggle('show');
+        function toggleNotificationsDropdown() {
+            const notificationsDropdown = document.getElementById('headerNotificationsDropdown');
+            const notificationsIcon = document.querySelector('.notifications-icon');
             
-            // Fetch and populate notifications when dropdown is opened
-            if (dropdown.classList.contains('show')) {
-                fetchRecentNotifications();
+            // Close other dropdowns if open
+            const locationDropdown = document.getElementById('headerLocationDropdown');
+            const profileDropdown = document.getElementById('headerProfileDropdown');
+            const locationIcon = document.querySelector('.header-location');
+            const profileIcon = document.querySelector('.header-profile');
+            
+            if (locationDropdown.classList.contains('show')) {
+                locationDropdown.classList.remove('show');
+                locationIcon.classList.remove('active');
+            }
+            
+            if (profileDropdown.classList.contains('show')) {
+                profileDropdown.classList.remove('show');
+                profileIcon.classList.remove('active');
+            }
+
+            notificationsDropdown.classList.toggle('show');
+            notificationsIcon.classList.toggle('active');
+        }
+
+        function markAllNotificationsAsRead() {
+            // AJAX call to mark all notifications as read
+            fetch('{% url "mark_all_notifications_read" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI to remove unread indicators
+                    const notificationItems = document.querySelectorAll('.notification-item');
+                    notificationItems.forEach(item => {
+                        item.classList.remove('unread');
+                    });
+                    
+                    // Hide notification badge
+                    const notificationBadge = document.querySelector('.notifications-badge');
+                    if (notificationBadge) {
+                        notificationBadge.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error marking notifications as read:', error);
+            });
+        }
+
+        function closeHeaderDropdowns(event) {
+            const notificationsDropdown = document.getElementById('headerNotificationsDropdown');
+            const notificationsIcon = document.querySelector('.notifications-icon');
+            const locationDropdown = document.getElementById('headerLocationDropdown');
+            const profileDropdown = document.getElementById('headerProfileDropdown');
+            const locationIcon = document.querySelector('.header-location');
+            const profileIcon = document.querySelector('.header-profile');
+
+            // Check if click is outside dropdowns
+            if (!notificationsDropdown.contains(event.target) && 
+                !locationDropdown.contains(event.target) && 
+                !profileDropdown.contains(event.target) &&
+                !notificationsIcon.contains(event.target) &&
+                !locationIcon.contains(event.target) &&
+                !profileIcon.contains(event.target)) {
+                
+                notificationsDropdown.classList.remove('show');
+                locationDropdown.classList.remove('show');
+                profileDropdown.classList.remove('show');
+                
+                notificationsIcon.classList.remove('active');
+                locationIcon.classList.remove('active');
+                profileIcon.classList.remove('active');
             }
         }
 
+        // Add event listener to close dropdowns when clicking outside
+        document.addEventListener('click', closeHeaderDropdowns);
+    </script>
+    <script>
+        // Fetch recent notifications
         function fetchRecentNotifications() {
             fetch("{% url 'notifications_list' %}?recent=true", {
                 headers: {
@@ -625,7 +1112,7 @@
                 return response.json();
             })
             .then(data => {
-                const notificationList = document.querySelector('.notification-list');
+                const notificationList = document.querySelector('.notifications-list');
                 notificationList.innerHTML = ''; // Clear existing notifications
 
                 data.notifications.forEach(notification => {
@@ -634,7 +1121,7 @@
                 });
 
                 // Update badge
-                const badge = document.querySelector('.notification-badge');
+                const badge = document.querySelector('.notifications-badge');
                 if (badge) {
                     badge.textContent = data.unread_count;
                     badge.style.display = data.unread_count > 0 ? 'flex' : 'none';
@@ -642,7 +1129,7 @@
             })
             .catch(error => {
                 console.warn('Error fetching notifications:', error);
-                const notificationList = document.querySelector('.notification-list');
+                const notificationList = document.querySelector('.notifications-list');
                 notificationList.innerHTML = `
                     <div class="notification-item">
                         <p>Unable to load notifications. Please try again later.</p>
@@ -651,6 +1138,7 @@
             });
         }
 
+        // Create notification element
         function createNotificationElement(notification) {
             const div = document.createElement('div');
             div.classList.add('notification-item');
@@ -671,66 +1159,12 @@
                     <p>${notification.message}</p>
                     <span class="notification-time">${notification.created_at}</span>
                 </div>
-                <div class="notification-actions">
-                    ${!notification.is_read ? '<button class="btn-read">Mark Read</button>' : ''}
-                </div>
             `;
-
-            // Add event listener for marking individual notification as read
-            const markReadBtn = div.querySelector('.btn-read');
-            if (markReadBtn) {
-                markReadBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    markNotificationAsRead(notification.id);
-                });
-            }
-
-            // Add click event to open notification
-            div.addEventListener('click', function(e) {
-                if (!e.target.classList.contains('btn-read')) {
-                    openNotification(notification.type, notification.ref_id);
-                }
-            });
 
             return div;
         }
 
-        function markNotificationAsRead(notificationId) {
-            fetch(`/notifications/mark-read/${notificationId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Update badge and remove notification from list
-                updateNotificationBadge();
-                fetchRecentNotifications();
-            })
-            .catch(error => {
-                console.warn('Error marking notification as read:', error);
-            });
-        }
-
-        function openNotification(type, referenceId) {
-            switch(type) {
-                case 'lead_assigned':
-                case 'lead_status_change':
-                    window.location.href = `/lead/${referenceId}/`;
-                    break;
-                case 'biometric_status_change':
-                    window.location.href = `/biometric/${referenceId}/`;
-                    break;
-                case 'weekly_report':
-                    window.location.href = `/reports/weekly/`;
-                    break;
-                default:
-                    window.location.href = '/notifications/';
-            }
-        }
-
+        // Get notification icon
         function getNotificationIcon(type) {
             const icons = {
                 'lead_assigned': '<i class="fas fa-user-plus"></i>',
@@ -742,26 +1176,94 @@
             return icons[type] || '<i class="fas fa-bell"></i>';
         }
 
-        // Utility function to get CSRF token
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
+        // Toggle notifications dropdown
+        function toggleNotificationsDropdown() {
+            const notificationsDropdown = document.getElementById('headerNotificationsDropdown');
+            const notificationsIcon = document.querySelector('.notifications-icon');
+            
+            // Close other dropdowns if open
+            const locationDropdown = document.getElementById('headerLocationDropdown');
+            const profileDropdown = document.getElementById('headerProfileDropdown');
+            const locationIcon = document.querySelector('.header-location');
+            const profileIcon = document.querySelector('.header-profile');
+            
+            if (locationDropdown.classList.contains('show')) {
+                locationDropdown.classList.remove('show');
+                locationIcon.classList.remove('active');
             }
-            return cookieValue;
+            
+            if (profileDropdown.classList.contains('show')) {
+                profileDropdown.classList.remove('show');
+                profileIcon.classList.remove('active');
+            }
+
+            notificationsDropdown.classList.toggle('show');
+            notificationsIcon.classList.toggle('active');
+
+            // Fetch and populate notifications when dropdown is opened
+            if (notificationsDropdown.classList.contains('show')) {
+                fetchRecentNotifications();
+            }
         }
     </script>
     <script>
         function toggleDropdown() {
             var dropdown = document.getElementById('userDropdown');
             dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+    <script>
+        function toggleProfileDropdown() {
+            const profileDropdown = document.getElementById('headerProfileDropdown');
+            const isVisible = profileDropdown.style.display === 'block';
+            
+            // Close all dropdowns first
+            closeHeaderDropdowns();
+            
+            // Toggle current dropdown
+            profileDropdown.style.display = isVisible ? 'none' : 'block';
+        }
+
+        function closeHeaderDropdowns(event) {
+            const searchDropdown = document.getElementById('globalSearchDropdown');
+            const filterDropdown = document.getElementById('filterDropdown');
+            const notificationsDropdown = document.getElementById('notificationsDropdown');
+            const profileDropdown = document.getElementById('headerProfileDropdown');
+            const locationDropdown = document.getElementById('headerLocationDropdown');
+
+            // If event is provided, check if click is outside dropdowns
+            if (event) {
+                const dropdowns = [
+                    searchDropdown, 
+                    filterDropdown, 
+                    notificationsDropdown, 
+                    profileDropdown, 
+                    locationDropdown
+                ];
+
+                const isClickInsideDropdown = dropdowns.some(dropdown => 
+                    dropdown && dropdown.contains(event.target)
+                );
+
+                const isClickOnTrigger = [
+                    '.search-icon', 
+                    '.filter-icon', 
+                    '.header-notifications', 
+                    '.header-profile', 
+                    '.header-location'
+                ].some(selector => 
+                    event.target.closest(selector)
+                );
+
+                if (isClickInsideDropdown || isClickOnTrigger) return;
+            }
+
+            // Close all dropdowns
+            if (searchDropdown) searchDropdown.style.display = 'none';
+            if (filterDropdown) filterDropdown.style.display = 'none';
+            if (notificationsDropdown) notificationsDropdown.style.display = 'none';
+            if (profileDropdown) profileDropdown.style.display = 'none';
+            if (locationDropdown) locationDropdown.style.display = 'none';
         }
     </script>
     {% endblock %}

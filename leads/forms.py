@@ -7,13 +7,12 @@ class LeadForm(forms.ModelForm):
     """
     class Meta:
         model = Lead
-        fields = ['name', 'email', 'location', 'phone', 'status']
+        fields = ['name', 'email', 'location', 'phone']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter full name'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter email address'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter location'}),
-            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'}),
-            'status': forms.Select(attrs={'class': 'form-control'})
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'})
         }
 
     def clean_email(self):

@@ -1,30 +1,105 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Search Results{% endblock %}
+{% block title %}Advanced Search Results{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <div class="row">
-        <div class="col-md-12">
+        <!-- Search Configuration Sidebar -->
+        <div class="col-md-3 search-config-sidebar">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-filter"></i> Search Configuration
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="GET" id="advanced-search-form">
+                        <!-- Dynamic Search Fields -->
+                        {% for model, fields in search_fields.items %}
+                            <div class="search-model-section" data-model="{{ model }}">
+                                <h5 class="text-muted mb-3">{{ model|title }} Fields</h5>
+                                {% for field in fields %}
+                                    <div class="form-group mb-2">
+                                        <label for="{{ model }}_{{ field.field }}">{{ field.label }}</label>
+                                        
+                                        {% if field.type == 'text' %}
+                                            <input type="text" 
+                                                   name="{{ field.field }}" 
+                                                   id="{{ model }}_{{ field.field }}" 
+                                                   class="form-control form-control-sm"
+                                                   placeholder="Search {{ field.label }}">
+                                        
+                                        {% elif field.type == 'choice' %}
+                                            <select name="{{ field.field }}" 
+                                                    id="{{ model }}_{{ field.field }}" 
+                                                    class="form-control form-control-sm">
+                                                <option value="">All {{ field.label }}</option>
+                                                {% for value, display in field.choices.items %}
+                                                    <option value="{{ value }}">{{ display }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        
+                                        {% elif field.type == 'date' %}
+                                            <input type="date" 
+                                                   name="{{ field.field }}" 
+                                                   id="{{ model }}_{{ field.field }}" 
+                                                   class="form-control form-control-sm">
+                                        
+                                        {% elif field.type == 'boolean' %}
+                                            <select name="{{ field.field }}" 
+                                                    id="{{ model }}_{{ field.field }}" 
+                                                    class="form-control form-control-sm">
+                                                <option value="">All</option>
+                                                <option value="true">True</option>
+                                                <option value="false">False</option>
+                                            </select>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="search-actions mt-3">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Apply Advanced Search
+                            </button>
+                            <button type="reset" class="btn btn-secondary w-100 mt-2">
+                                <i class="fas fa-undo"></i> Reset Filters
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search Results -->
+        <div class="col-md-9">
             <div class="card">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h2 class="mb-0">
                         <i class="fas fa-search"></i> Search Results
                     </h2>
-                    <span class="badge bg-light text-dark">
-                        Total Results: {{ total_results }}
-                    </span>
+                    <div class="search-summary">
+                        <span class="badge bg-light text-dark me-2">
+                            Total Results: {{ total_results }}
+                        </span>
+                        {% if query or status or type %}
+                        <span class="badge bg-secondary">
+                            Filters: 
+                            {% if query %}"{{ query }}"{% endif %}
+                            {% if status %}Status: {{ status }}{% endif %}
+                            {% if type %}Type: {{ type }}{% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
                 </div>
                 
                 <div class="card-body">
-                    {% if query %}
-                        <h4 class="mb-4">Results for "{{ query }}"</h4>
-                    {% endif %}
-                    
                     {% if total_results == 0 %}
                         <div class="alert alert-info text-center">
-                            <i class="fas fa-search"></i> No results found.
+                            <i class="fas fa-search"></i> No results found matching your search criteria.
                         </div>
                     {% else %}
                         <div class="table-responsive">
@@ -32,9 +107,10 @@
                                 <thead class="thead-dark">
                                     <tr>
                                         <th>Type</th>
-                                        <th>Name</th>
+                                        <th>Name/Title</th>
                                         <th>Details</th>
                                         <th>Status</th>
+                                        <th>Created At</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -42,18 +118,21 @@
                                     {% for result in results %}
                                     <tr>
                                         <td>
-                                            {% if result.type == 'Lead' %}
-                                                <span class="badge bg-info">Lead</span>
-                                            {% else %}
-                                                <span class="badge bg-success">Biometric</span>
-                                            {% endif %}
+                                            <span class="badge 
+                                                {% if result.type == 'Lead' %}bg-info
+                                                {% elif result.type == 'Biometric' %}bg-success
+                                                {% else %}bg-warning{% endif %}">
+                                                {{ result.type }}
+                                            </span>
                                         </td>
                                         <td>{{ result.name }}</td>
                                         <td>
                                             {% if result.type == 'Lead' %}
-                                                {{ result.email }} | {{ result.phone }} | {{ result.company }}
+                                                {{ result.email }} | {{ result.phone }}
+                                            {% elif result.type == 'Biometric' %}
+                                                {{ result.location }}
                                             {% else %}
-                                                {{ result.description|truncatechars:50 }}
+                                                {{ result.message|truncatechars:50 }}
                                             {% endif %}
                                         </td>
                                         <td>
@@ -65,9 +144,10 @@
                                                 {{ result.status }}
                                             </span>
                                         </td>
+                                        <td>{{ result.created_at|date:"d M Y" }}</td>
                                         <td>
                                             <a href="{{ result.detail_url }}" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-eye"></i> View Details
+                                                <i class="fas fa-eye"></i> View
                                             </a>
                                         </td>
                                     </tr>
@@ -83,10 +163,10 @@
                                 <ul class="pagination">
                                     {% if results.has_previous %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?q={{ query }}&page=1">First</a>
+                                        <a class="page-link" href="?query={{ query }}&status={{ status }}&type={{ type }}&page=1">First</a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" href="?q={{ query }}&page={{ results.previous_page_number }}">Previous</a>
+                                        <a class="page-link" href="?query={{ query }}&status={{ status }}&type={{ type }}&page={{ results.previous_page_number }}">Previous</a>
                                     </li>
                                     {% endif %}
 
@@ -98,10 +178,10 @@
 
                                     {% if results.has_next %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?q={{ query }}&page={{ results.next_page_number }}">Next</a>
+                                        <a class="page-link" href="?query={{ query }}&status={{ status }}&type={{ type }}&page={{ results.next_page_number }}">Next</a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" href="?q={{ query }}&page={{ results.paginator.num_pages }}">Last</a>
+                                        <a class="page-link" href="?query={{ query }}&status={{ status }}&type={{ type }}&page={{ results.paginator.num_pages }}">Last</a>
                                     </li>
                                     {% endif %}
                                 </ul>
@@ -114,4 +194,17 @@
         </div>
     </div>
 </div>
+
+<style>
+    .search-config-sidebar {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    .search-model-section {
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+</style>
+
 {% endblock %}
