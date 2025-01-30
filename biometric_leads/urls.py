@@ -40,6 +40,9 @@ urlpatterns = [
     path('lead/history/', views.lead_history, name='lead_history'),
     path('lead/<int:lead_id>/', views.lead_detail, name='lead_detail'),
     
+    # Leads Status URL
+    path('leads/status/', views.all_leads_status, name='all_leads_status'),
+    
     # Biometric Management URLs
     path('biometric/process/<int:biometric_id>/<str:action>/', 
          views.process_biometric, name='process_biometric'),
@@ -50,14 +53,22 @@ urlpatterns = [
     # Notification URLs
     path('notifications/', views.notifications_list, name='notifications_list'),
     path('notifications/mark-read/<int:notification_id>/', views.mark_notification_read, name='mark_notification_read'),
-    path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
-    path('notifications/unread-count/', views.get_unread_notifications_count, name='unread_notifications_count'),
     
-    # User Profile URLs
+    # Additional routes for existing features
+    path('search/', views.global_search, name='global_search'),
+    path('get-location/', views.get_current_location, name='get_current_location'),
+    path('notifications/unread-count/', views.get_unread_notifications_count, name='unread_notifications_count'),
+    path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
+    
+    # User Profile and Account Management URLs
+    path('accounts/profile/', views.user_profile, name='user_profile'),
+    path('accounts/change-password/', views.change_password, name='change_password'),
     path('user_details/', views.user_details, name='user_details'),
     
+    # User Dashboard URL
+    path('dashboard/', views.user_dashboard, name='user_dashboard'),
+    
     # Search and Utility URLs
-    path('search/', views.global_search, name='global_search'),
     
     # Password Reset URLs
     path('password_reset/', 
