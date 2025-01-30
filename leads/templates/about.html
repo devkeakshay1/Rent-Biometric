@@ -1,35 +1,62 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}About Us{% endblock %}
+{% block title %}About Biometric Leads{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>About Us</h1>
-    <p>Welcome to our website. We are dedicated to providing the best service for biometric leads.</p>
-    
-    <h2>User Information</h2>
-    <table>
-        <tr>
-            <th>Username</th>
-            <td>{{ user.username }}</td>
-        </tr>
-        <tr>
-            <th>Email</th>
-            <td>{{ user.email }}</td>
-        </tr>
-        <tr>
-            <th>First Name</th>
-            <td>{{ user.first_name }}</td>
-        </tr>
-        <tr>
-            <th>Last Name</th>
-            <td>{{ user.last_name }}</td>
-        </tr>
-        <tr>
-            <th>Date Joined</th>
-            <td>{{ user.date_joined }}</td>
-        </tr>
-    </table>
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <h1 class="display-4 mb-4">About Biometric Leads</h1>
+            <p class="lead">We are a cutting-edge platform dedicated to revolutionizing biometric lead management and processing.</p>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Our Mission</h3>
+                    <p>To streamline biometric data collection, verification, and management with innovative technology and user-centric design.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Key Features</h3>
+                    <ul class="list-unstyled">
+                        <li>✓ Secure Biometric Data Handling</li>
+                        <li>✓ Real-time Lead Tracking</li>
+                        <li>✓ Advanced Authentication Mechanisms</li>
+                        <li>✓ Comprehensive User Management</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3>Your Profile Details</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Username</th>
+                            <td>{{ user.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Full Name</th>
+                            <td>{{ user.first_name }} {{ user.last_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Member Since</th>
+                            <td>{{ user.date_joined|date:"F d, Y" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

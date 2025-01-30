@@ -44,3 +44,11 @@ def add_class(value, arg):
     else:
         css_classes = arg
     return value.as_widget(attrs={'class': css_classes})
+
+@register.filter(name='dict_get')
+def dict_get(dictionary, key):
+    """
+    Custom template filter to safely get a value from a dictionary
+    Usage: {{ my_dict|dict_get:key }}
+    """
+    return dictionary.get(key) if dictionary and key else None

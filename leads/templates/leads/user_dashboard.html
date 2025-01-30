@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="fas fa-user-circle"></i> 
+                        {{ user.get_full_name|default:user.username }}'s Dashboard
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Profile Overview -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h4>Profile Completion</h4>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div class="progress" style="height: 30px;">
+                                        <div class="progress-bar 
+                                            {% if profile_completion_percentage < 50 %}bg-danger
+                                            {% elif profile_completion_percentage < 80 %}bg-warning
+                                            {% else %}bg-success{% endif %}" 
+                                            role="progressbar" 
+                                            style="width: {{ profile_completion_percentage }}%;" 
+                                            aria-valuenow="{{ profile_completion_percentage }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                            {{ profile_completion_percentage }}%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h4>Lead Statistics</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Total Leads:</strong> {{ total_leads }}</p>
+                                    {% for status, count in leads_by_status.items %}
+                                        <p>
+                                            <span class="badge 
+                                                {% if status == 'new' %}bg-info
+                                                {% elif status == 'in_progress' %}bg-warning
+                                                {% elif status == 'approved' %}bg-success
+                                                {% elif status == 'rejected' %}bg-danger
+                                                {% endif %}">
+                                                {{ status|title }}: {{ count }}
+                                            </span>
+                                        </p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h4>Notifications</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Total Notifications:</strong> {{ total_notifications }}</p>
+                                    <p><strong>Unread Notifications:</strong> 
+                                        <span class="badge bg-danger">{{ unread_notifications }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Recent Leads</h4>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Status</th>
+                                                <th>Created At</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for lead in recent_leads %}
+                                            <tr>
+                                                <td>{{ lead.name }}</td>
+                                                <td>
+                                                    <span class="badge 
+                                                        {% if lead.status == 'new' %}bg-info
+                                                        {% elif lead.status == 'in_progress' %}bg-warning
+                                                        {% elif lead.status == 'approved' %}bg-success
+                                                        {% elif lead.status == 'rejected' %}bg-danger
+                                                        {% endif %}">
+                                                        {{ lead.get_status_display }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ lead.created_at|date:"d M Y" }}</td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="3" class="text-center">No recent leads</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Recent Notifications</h4>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Message</th>
+                                                <th>Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for notification in recent_notifications %}
+                                            <tr>
+                                                <td>
+                                                    <span class="badge 
+                                                        {% if notification.type == 'lead_assigned' %}bg-primary
+                                                        {% elif notification.type == 'lead_status_change' %}bg-warning
+                                                        {% elif notification.type == 'biometric_status_change' %}bg-info
+                                                        {% elif notification.type == 'system_alert' %}bg-danger
+                                                        {% else %}bg-secondary{% endif %}">
+                                                        {{ notification.get_type_display }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ notification.message|truncatechars:30 }}</td>
+                                                <td>{{ notification.created_at|date:"d M Y" }}</td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="3" class="text-center">No recent notifications</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('User Dashboard Loaded');
+    });
+</script>
+{% endblock %}

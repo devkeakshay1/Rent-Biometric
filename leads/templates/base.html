@@ -1,13 +1,21 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Biometric Leads{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>{% block title %}Biometric Leads Management{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
+    {% block extra_head %}{% endblock %}
+    
     <style>
         /* Color Palette */
         :root {
@@ -775,7 +783,6 @@
             color: var(--danger-color);
         }
     </style>
-    {% block extra_head %}{% endblock %}
 </head>
 <body>
     {% if user.is_authenticated and request.path != '/login/' %}
@@ -788,15 +795,24 @@
                 <a href="{% url 'create_lead' %}" class="nav-link">
                     <i class="fas fa-plus-circle"></i> Create Lead
                 </a>
+                <a href="{% url 'all_leads_status' %}" class="nav-link">
+                    <i class="fas fa-list-alt"></i> All Leads Status
+                </a>
+                <a href="{% url 'user_dashboard' %}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i> User Dashboard
+                </a>
                 <div class="search-filter-container">
                     <i class="fas fa-search search-icon" onclick="toggleSearchDropdown()"></i>
                     <i class="fas fa-filter filter-icon" onclick="toggleFilterDropdown()"></i>
                 </div>
                 <div class="header-location-user-container">
-                    <div class="header-location" onclick="toggleLocationDropdown()">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span class="header-location-text">Location</span>
+                    {% if user.is_authenticated %}
+                    <div class="header-location">
+                        <a href="#" onclick="getCurrentLocation(); return false;" title="Get Current Location">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </a>
                     </div>
+                    {% endif %}
                     <div class="header-profile" onclick="toggleProfileDropdown()">
                         <i class="fas fa-user-circle"></i>
                         <span class="header-profile-text">{{ user.username }}</span>
@@ -981,7 +997,220 @@
     </div>
     {% endif %}
 
-    {% block extra_scripts %}
+    {% block extra_js %}
+    <script>
+        // Comprehensive diagnostic logging for header interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== Biometric Leads Header Diagnostic ===');
+            
+            // Check key elements
+            const elementsToCheck = [
+                'globalSearchDropdown', 
+                'headerProfileDropdown', 
+                'headerNotificationsDropdown',
+                'filterDropdown'
+            ];
+
+            elementsToCheck.forEach(elementId => {
+                const element = document.getElementById(elementId);
+                console.log(`Element ${elementId}: ${element ? 'FOUND ✓' : 'MISSING ✗'}`);
+            });
+
+            // Verify onclick handlers
+            const handlersToCheck = [
+                { selector: '.search-icon', event: 'toggleSearchDropdown' },
+                { selector: '.header-profile', event: 'toggleProfileDropdown' },
+                { selector: '.header-notifications', event: 'toggleNotificationsDropdown' }
+            ];
+
+            handlersToCheck.forEach(handler => {
+                const elements = document.querySelectorAll(handler.selector);
+                console.log(`${handler.selector} elements found: ${elements.length}`);
+                
+                elements.forEach((el, index) => {
+                    const hasHandler = el.getAttribute('onclick') && 
+                                       el.getAttribute('onclick').includes(handler.event);
+                    console.log(`  ${handler.selector} #${index + 1}: ${hasHandler ? 'Handler ✓' : 'No Handler ✗'}`);
+                });
+            });
+
+            console.log('=== End of Diagnostic ===');
+        });
+
+        // Existing functions with added logging
+        function toggleSearchDropdown() {
+            console.log('toggleSearchDropdown called');
+            const dropdown = document.getElementById('globalSearchDropdown');
+            if (!dropdown) {
+                console.error('Search dropdown not found');
+                return;
+            }
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleProfileDropdown() {
+            console.log('toggleProfileDropdown called');
+            const dropdown = document.getElementById('headerProfileDropdown');
+            if (!dropdown) {
+                console.error('Profile dropdown not found');
+                return;
+            }
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleNotificationsDropdown() {
+            console.log('toggleNotificationsDropdown called');
+            const dropdown = document.getElementById('headerNotificationsDropdown');
+            if (!dropdown) {
+                console.error('Notifications dropdown not found');
+                return;
+            }
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+    <script>
+        // Debug logging function
+        function debugLog(message, level = 'info') {
+            const levels = {
+                'info': console.log,
+                'warn': console.warn,
+                'error': console.error
+            };
+            levels[level](`[BiometricLeads Debug] ${message}`);
+        }
+
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            debugLog(`Uncaught error: ${event.message} at ${event.filename}:${event.lineno}`, 'error');
+        });
+
+        // Search Dropdown Function
+        function toggleSearchDropdown() {
+            try {
+                debugLog('Toggling search dropdown');
+                const dropdown = document.getElementById('globalSearchDropdown');
+                if (!dropdown) {
+                    throw new Error('Search dropdown element not found');
+                }
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            } catch (error) {
+                debugLog(`Search dropdown error: ${error.message}`, 'error');
+            }
+        }
+
+        // Location Function
+        function getCurrentLocation() {
+            debugLog('Attempting to get current location');
+            
+            // Check if geolocation is supported
+            if (!("geolocation" in navigator)) {
+                debugLog('Geolocation not supported', 'error');
+                alert("Geolocation is not supported by your browser.");
+                return;
+            }
+
+            // Request location with detailed logging
+            navigator.geolocation.getCurrentPosition(
+                // Success Callback
+                function(position) {
+                    debugLog(`Location found: Lat ${position.coords.latitude}, Lon ${position.coords.longitude}`);
+                    
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    
+                    const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}&z=15`;
+                    
+                    debugLog(`Opening Google Maps: ${googleMapsUrl}`);
+                    
+                    try {
+                        const mapWindow = window.open(googleMapsUrl, '_blank', 'noopener,noreferrer');
+                        
+                        if (!mapWindow || mapWindow.closed || typeof mapWindow.closed == 'undefined') {
+                            debugLog('Pop-up blocked', 'warn');
+                            alert('Please allow pop-ups for this site to open Google Maps.');
+                        }
+                    } catch (openError) {
+                        debugLog(`Error opening map window: ${openError.message}`, 'error');
+                    }
+                },
+                
+                // Error Callback
+                function(error) {
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            debugLog('Location permission denied', 'error');
+                            alert("Location access denied. Please enable location permissions.");
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            debugLog('Location information unavailable', 'warn');
+                            alert("Location information is unavailable.");
+                            break;
+                        case error.TIMEOUT:
+                            debugLog('Location request timed out', 'warn');
+                            alert("Location request timed out.");
+                            break;
+                        default:
+                            debugLog(`Unknown location error: ${error.message}`, 'error');
+                            alert("An unknown error occurred while fetching location.");
+                    }
+                },
+                
+                // Options
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // Profile Dropdown Function
+        function toggleProfileDropdown() {
+            try {
+                debugLog('Toggling profile dropdown');
+                const dropdown = document.getElementById('headerProfileDropdown');
+                if (!dropdown) {
+                    throw new Error('Profile dropdown element not found');
+                }
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            } catch (error) {
+                debugLog(`Profile dropdown error: ${error.message}`, 'error');
+            }
+        }
+
+        // Notifications Dropdown Function
+        function toggleNotificationsDropdown() {
+            try {
+                debugLog('Toggling notifications dropdown');
+                const dropdown = document.getElementById('headerNotificationsDropdown');
+                if (!dropdown) {
+                    throw new Error('Notifications dropdown element not found');
+                }
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            } catch (error) {
+                debugLog(`Notifications dropdown error: ${error.message}`, 'error');
+            }
+        }
+
+        // Add event listener for page load debugging
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('Page fully loaded');
+            
+            // Verify key elements exist
+            const checkElements = [
+                'globalSearchDropdown', 
+                'headerProfileDropdown', 
+                'headerNotificationsDropdown'
+            ];
+            
+            checkElements.forEach(elementId => {
+                const element = document.getElementById(elementId);
+                if (!element) {
+                    debugLog(`Warning: Element ${elementId} not found`, 'warn');
+                }
+            });
+        });
+    </script>
     <script>
         // Fetch unread notifications count
         function updateNotificationBadge() {

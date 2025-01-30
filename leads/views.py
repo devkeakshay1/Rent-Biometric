@@ -22,6 +22,8 @@ from .forms import LeadForm
 from dateutil.relativedelta import relativedelta
 from .search_config import SearchConfiguration
 from django.contrib.auth import update_session_auth_hash
+import logging
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -629,75 +631,141 @@ def get_unread_notifications_count(request):
     Get count of unread notifications with error handling
     """
     try:
-        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
-        
-        # If no notifications, create dummy system alert
-        if unread_count == 0:
-            Notification.objects.create(
-                user=request.user,
-                type='system_alert',
-                message='No new notifications. Stay tuned for updates!',
-                is_read=False
-            )
-            unread_count = 1
-        
-        return JsonResponse({'unread_count': unread_count, 'error': None})
-    
-    except Exception as e:
-        # Log the error
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Error getting unread notifications count: {str(e)}")
-        
-        # Create a system alert notification about the error
-        Notification.objects.create(
-            user=request.user,
-            type='system_alert',
-            message='Unable to load notifications. Please try again later.',
+        unread_count = Notification.objects.filter(
+            user=request.user, 
             is_read=False
-        )
+        ).count()
         
+        logger.info(f"Unread notifications for {request.user.username}: {unread_count}")
         return JsonResponse({
-            'unread_count': 1,
-            'error': 'Unable to load notifications. Please try again later.'
+            'status': 'success',
+            'unread_count': unread_count
         })
+    except Exception as e:
+        logger.error(f"Notification count error: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Could not retrieve notifications'
+        }, status=500)
 
 @login_required
 def mark_all_notifications_read(request):
     """
     Mark all user notifications as read
     """
-    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
-    return redirect('notifications_list')
+    try:
+        unread_notifications = Notification.objects.filter(
+            user=request.user, 
+            is_read=False
+        )
+        count = unread_notifications.count()
+        
+        unread_notifications.update(is_read=True)
+        
+        logger.info(f"Marked {count} notifications as read for {request.user.username}")
+        return JsonResponse({
+            'status': 'success',
+            'marked_count': count
+        })
+    except Exception as e:
+        logger.error(f"Mark notifications error: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Could not mark notifications'
+        }, status=500)
+
+@login_required
+def get_current_location(request):
+    """
+    Handle current location retrieval for the user
+    """
+    try:
+        if request.method == 'POST':
+            latitude = request.POST.get('latitude')
+            longitude = request.POST.get('longitude')
+            
+            if latitude and longitude:
+                logger.info(f"Location received for user {request.user.username}: {latitude}, {longitude}")
+                return JsonResponse({
+                    'status': 'success', 
+                    'message': 'Location received',
+                    'latitude': latitude,
+                    'longitude': longitude
+                })
+        
+        logger.warning("Location data not provided")
+        return JsonResponse({
+            'status': 'error', 
+            'message': 'Location data missing'
+        }, status=400)
+    
+    except Exception as e:
+        logger.error(f"Location retrieval error: {str(e)}")
+        return JsonResponse({
+            'status': 'error', 
+            'message': 'Internal server error'
+        }, status=500)
+
+def global_search(request):
+    """
+    Enhanced global search with comprehensive logging
+    """
+    try:
+        query = request.GET.get('q', '')
+        logger.info(f"Search query received: {query}")
+        
+        # Existing search logic from your current implementation
+        search_config = SearchConfiguration()
+        results = search_config.execute_search(query)
+        
+        logger.info(f"Search returned {len(results)} results")
+        return JsonResponse({
+            'status': 'success',
+            'results': results
+        })
+    except Exception as e:
+        logger.error(f"Search error: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Search failed'
+        }, status=500)
 
 @login_required
 def mark_notification_read(request, notification_id):
     """
     Mark a specific notification as read
     """
-    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
-    
-    # If it's an AJAX request, return JSON response
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    try:
+        notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+        
+        # If it's an AJAX request, return JSON response
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            notification.is_read = True
+            notification.save()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Notification marked as read',
+                'unread_count': Notification.objects.filter(user=request.user, is_read=False).count()
+            })
+        
+        # Regular request
         notification.is_read = True
         notification.save()
+        
+        # Redirect based on notification type
+        if notification.lead:
+            return redirect('lead_detail', lead_id=notification.lead.id)
+        elif notification.biometric:
+            return redirect('biometric_detail', biometric_id=notification.biometric.id)
+        
+        return redirect('notifications_list')
+    
+    except Exception as e:
+        logger.error(f"Mark notification error: {str(e)}")
         return JsonResponse({
-            'status': 'success',
-            'message': 'Notification marked as read',
-            'unread_count': Notification.objects.filter(user=request.user, is_read=False).count()
-        })
-    
-    # Regular request
-    notification.is_read = True
-    notification.save()
-    
-    # Redirect based on notification type
-    if notification.lead:
-        return redirect('lead_detail', lead_id=notification.lead.id)
-    elif notification.biometric:
-        return redirect('biometric_detail', biometric_id=notification.biometric.id)
-    
-    return redirect('notifications_list')
+            'status': 'error',
+            'message': 'Could not mark notification'
+        }, status=500)
 
 @login_required
 def user_profile(request):
@@ -733,6 +801,124 @@ def change_password(request):
     }
     return render(request, 'accounts/change_password.html', context)
 
+@login_required
+def interactive_dashboard(request):
+    """
+    Provide an interactive dashboard for users to track their leads, 
+    biometrics, and overall engagement.
+    """
+    # Get user's leads
+    leads = Lead.objects.filter(user=request.user)
+    
+    # Calculate lead engagement metrics
+    total_leads = leads.count()
+    high_engagement_leads = [lead for lead in leads if lead.get_interaction_status() == 'High Engagement']
+    
+    # Get user's biometrics
+    biometrics = Biometric.objects.filter(user=request.user)
+    
+    # Biometric verification metrics
+    total_biometrics = biometrics.count()
+    high_confidence_biometrics = [bio for bio in biometrics if bio.get_verification_status() == 'High Confidence']
+    
+    # Notification tracking
+    unread_notifications = Notification.get_unread_count(request.user)
+    
+    # Prepare context for template
+    context = {
+        'total_leads': total_leads,
+        'high_engagement_leads': high_engagement_leads,
+        'total_biometrics': total_biometrics,
+        'high_confidence_biometrics': high_confidence_biometrics,
+        'unread_notifications': unread_notifications,
+        'leads': leads,
+        'biometrics': biometrics,
+    }
+    
+    return render(request, 'interactive_dashboard.html', context)
+
+@login_required
+def all_leads_status(request):
+    """
+    Display all leads with their current status
+    Supports filtering and pagination
+    """
+    try:
+        # Detailed logging for debugging
+        logger.info(f"User {request.user.username} accessing All Leads Status page")
+        
+        # Get filter parameters
+        status = request.GET.get('status', '')
+        search_query = request.GET.get('q', '')
+        
+        logger.info(f"Filters - Status: {status}, Search Query: {search_query}")
+        
+        # Base queryset with all leads
+        leads = Lead.objects.select_related('user', 'biometric').all()
+        
+        # Apply status filter if provided
+        if status:
+            leads = leads.filter(status=status)
+            logger.info(f"Filtered leads with status: {status}")
+        
+        # Apply search query if provided
+        if search_query:
+            leads = leads.filter(
+                Q(name__icontains=search_query) | 
+                Q(phone__icontains=search_query) | 
+                Q(email__icontains=search_query)
+            )
+            logger.info(f"Applied search filter: {search_query}")
+        
+        # Annotate leads with additional information
+        leads = leads.annotate(
+            days_since_creation=ExpressionWrapper(
+                timezone.now() - F('created_at'), 
+                output_field=DurationField()
+            )
+        )
+        
+        # Pagination
+        paginator = Paginator(leads, 20)  # 20 leads per page
+        page_number = request.GET.get('page')
+        
+        try:
+            page_obj = paginator.page(page_number)
+            logger.info(f"Pagination - Page {page_obj.number} of {paginator.num_pages}")
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+            logger.warning("Invalid page number, defaulting to first page")
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+            logger.warning("Page number out of range, showing last page")
+        
+        # Prepare status choices for filtering
+        status_choices = dict(Lead.STATUS_CHOICES)
+        
+        # Count leads for each status
+        status_counts = {
+            status: leads.filter(status=status).count() 
+            for status, _ in Lead.STATUS_CHOICES
+        }
+        logger.info(f"Status Counts: {status_counts}")
+        
+        context = {
+            'leads': page_obj,
+            'status_choices': status_choices,
+            'current_status': status,
+            'search_query': search_query,
+            'total_leads': leads.count(),
+            'status_counts': status_counts
+        }
+        
+        logger.info(f"Rendering template with {len(page_obj)} leads")
+        return render(request, 'leads/all_leads_status.html', context)
+    
+    except Exception as e:
+        logger.error(f"Critical error in all_leads_status view: {str(e)}", exc_info=True)
+        messages.error(request, f"An unexpected error occurred: {str(e)}")
+        return render(request, 'leads/all_leads_status.html', {'error': str(e)})
+
 # Error Handler Views
 def bad_request(request, exception=None):
     """
@@ -757,3 +943,82 @@ def server_error(request):
     Custom 500 Internal Server Error handler
     """
     return render(request, 'errors/500.html', status=500)
+
+@login_required
+def user_dashboard(request):
+    """
+    Comprehensive user dashboard with detailed statistics and insights
+    """
+    try:
+        # Basic user information
+        user = request.user
+        
+        # Lead-related statistics
+        total_leads = Lead.objects.filter(user=user).count()
+        leads_by_status = {
+            status: Lead.objects.filter(user=user, status=status).count()
+            for status, _ in Lead.STATUS_CHOICES
+        }
+        
+        # Biometric-related statistics
+        total_biometrics = Biometric.objects.filter(user=user).count()
+        biometrics_by_status = {
+            status: Biometric.objects.filter(user=user, status=status).count()
+            for status, _ in Biometric.STATUS_CHOICES
+        }
+        
+        # Notification statistics
+        total_notifications = Notification.objects.filter(user=user).count()
+        unread_notifications = Notification.objects.filter(user=user, is_read=False).count()
+        
+        # Recent activity
+        recent_leads = Lead.objects.filter(user=user).order_by('-created_at')[:5]
+        recent_notifications = Notification.objects.filter(user=user).order_by('-created_at')[:5]
+        
+        # Performance metrics
+        interaction_scores = [lead.interaction_score for lead in recent_leads]
+        avg_interaction_score = sum(interaction_scores) / len(interaction_scores) if interaction_scores else 0
+        
+        context = {
+            'user': user,
+            'total_leads': total_leads,
+            'leads_by_status': leads_by_status,
+            'total_biometrics': total_biometrics,
+            'biometrics_by_status': biometrics_by_status,
+            'total_notifications': total_notifications,
+            'unread_notifications': unread_notifications,
+            'recent_leads': recent_leads,
+            'recent_notifications': recent_notifications,
+            'avg_interaction_score': round(avg_interaction_score, 2),
+            'profile_completion_percentage': calculate_profile_completion(user)
+        }
+        
+        logger.info(f"User Dashboard accessed by {user.username}")
+        return render(request, 'leads/user_dashboard.html', context)
+    
+    except Exception as e:
+        logger.error(f"Error in user_dashboard view: {str(e)}", exc_info=True)
+        messages.error(request, f"An error occurred while loading your dashboard: {str(e)}")
+        return render(request, 'leads/user_dashboard.html', {'error': str(e)})
+
+def calculate_profile_completion(user):
+    """
+    Calculate user profile completion percentage
+    """
+    try:
+        profile_fields = [
+            'first_name', 'last_name', 'email', 
+            'userprofile__phone', 'userprofile__location'
+        ]
+        
+        total_fields = len(profile_fields)
+        completed_fields = sum(
+            1 for field in profile_fields 
+            if getattr(user, field.split('__')[-1] if '__' in field else field)
+        )
+        
+        completion_percentage = (completed_fields / total_fields) * 100
+        return round(completion_percentage, 2)
+    except Exception as e:
+        logger.error(f"Profile completion calculation error: {str(e)}")
+        return 0

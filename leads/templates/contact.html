@@ -1,28 +1,93 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Contact Us{% endblock %}
+{% block title %}Contact Biometric Leads{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Contact Us</h1>
-    <p>If you have any questions, feel free to reach out to us at contact@biometricleads.com.</p>
-    
-    <form method="post">
-        {% csrf_token %}
-        <div>
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <h1 class="display-4 mb-4">Contact Us</h1>
+            <p class="lead">Have questions or need support? We're here to help!</p>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Contact Information</h3>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i>contact@biometricleads.com</li>
+                        <li><i class="fas fa-phone me-2"></i>+1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>Silicon Valley, CA, USA</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Support Hours</h3>
+                    <p>Monday - Friday: 9 AM to 5 PM PST</p>
+                    <p>Weekend: Emergency Support Available</p>
+                </div>
+            </div>
         </div>
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+        
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3>Send Us a Message</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div class="invalid-feedback">Please enter your name</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="invalid-feedback">Please enter a valid email</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <select class="form-select" id="subject" name="subject" required>
+                                <option value="">Select a subject</option>
+                                <option value="support">Technical Support</option>
+                                <option value="sales">Sales Inquiry</option>
+                                <option value="feedback">General Feedback</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a subject</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Your Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                            <div class="invalid-feedback">Please enter your message</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div>
-            <label for="message">Message:</label>
-            <textarea id="message" name="message" required></textarea>
-        </div>
-        <button type="submit">Send Message</button>
-    </form>
+    </div>
 </div>
+
+<script>
+// Enable form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
 {% endblock %}
