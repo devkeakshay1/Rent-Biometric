@@ -53,7 +53,9 @@ urlpatterns = [
     path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
     path('notifications/unread-count/', views.get_unread_notifications_count, name='unread_notifications_count'),
     
-    # User Profile URLs
+    # User Profile and Account Management URLs
+    path('accounts/profile/', views.user_profile, name='user_profile'),
+    path('accounts/change-password/', views.change_password, name='change_password'),
     path('user_details/', views.user_details, name='user_details'),
     
     # Search and Utility URLs

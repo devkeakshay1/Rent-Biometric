@@ -31,3 +31,16 @@ def multiply_by(value, arg):
         return float(value) * float(arg)
     except (ValueError, TypeError):
         return 0
+
+@register.filter(name='add_class')
+def add_class(value, arg):
+    """
+    Add CSS class to form fields
+    Usage: {{ form.field|add_class:"my-class" }}
+    """
+    css_classes = value.field.widget.attrs.get('class', '')
+    if css_classes:
+        css_classes = f"{css_classes} {arg}"
+    else:
+        css_classes = arg
+    return value.as_widget(attrs={'class': css_classes})
