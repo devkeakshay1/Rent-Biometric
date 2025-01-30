@@ -1,0 +1,769 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Biometric Leads{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Header Refined Design */
+        :root {
+            --primary-color: #2575fc;
+            --secondary-color: #6a11cb;
+            --text-color: #333;
+            --background-color: #f4f6f9;
+            --header-bg: #f0f2f5;
+            --header-text: #1a1a1a;
+            --header-icon-color: #2575fc;
+            --header-hover-bg: rgba(37, 117, 252, 0.1);
+            --header-shadow: rgba(0, 0, 0, 0.08);
+            --notification-bg: #dc3545;
+        }
+
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--header-bg);
+            box-shadow: 0 2px 4px var(--header-shadow);
+            z-index: 1000;
+            transition: all 0.2s ease;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px 15px;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+        }
+
+        .header-nav a i {
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            margin-right: 4px;
+        }
+
+        .header-nav a:hover {
+            background-color: rgba(37, 117, 252, 0.05);
+            color: var(--primary-color);
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.04);
+            border-radius: 20px;
+            overflow: hidden;
+            max-width: 250px;
+            width: 40px;
+            transition: width 0.3s ease;
+        }
+
+        .search-input {
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            width: 0;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .search-button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .search-form:hover,
+        .search-form:focus-within {
+            width: 250px;
+        }
+
+        .search-form:hover .search-input,
+        .search-form:focus-within .search-input {
+            width: calc(100% - 40px);
+            opacity: 1;
+        }
+
+        .search-button:hover {
+            transform: scale(1.1);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-notification {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .header-notification i {
+            color: var(--header-icon-color);
+            font-size: 1.2rem;
+        }
+
+        .header-notification .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background-color: var(--notification-bg);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .header-notification:hover {
+            transform: scale(1.1);
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-width: 300px;
+            padding: 10px;
+            z-index: 1000;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .notification-dropdown.show {
+            display: block;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .notification-header h4 {
+            margin: 0;
+        }
+
+        .notification-header a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .notification-list {
+            padding: 10px 0;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        .notification-item:hover {
+            background-color: rgba(0,0,0,0.04);
+        }
+
+        .notification-item.unread {
+            background-color: rgba(0,0,0,0.02);
+        }
+
+        .notification-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-content p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: rgba(0,0,0,0.5);
+        }
+
+        .notification-actions {
+            margin-left: 10px;
+        }
+
+        .btn-read {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .notification-footer {
+            padding: 10px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .notification-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            background-color: var(--header-hover-bg);
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .profile-trigger:hover {
+            background-color: var(--header-hover-bg);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .profile-username {
+            color: var(--header-text);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .profile-trigger i {
+            color: var(--header-icon-color);
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-width: 200px;
+            padding: 10px;
+            z-index: 1000;
+            margin-top: 8px;
+        }
+
+        .profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            color: var(--header-text);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .profile-menu a i {
+            color: var(--header-icon-color);
+            font-size: 1rem;
+        }
+
+        .profile-menu a:hover {
+            background-color: var(--header-hover-bg);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .header-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .header-nav a {
+                margin: 0 5px 5px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-nav a {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+
+            .search-form {
+                max-width: 200px;
+            }
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f9;
+        }
+        {% if user.is_authenticated and request.path != '/login/' %}
+        body {
+            padding-top: 80px; /* Increased space for header */
+        }
+        {% endif %}
+        .site-footer {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 50px 0;
+            margin-top: 30px;
+        }
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .footer-section {
+            flex: 1;
+            margin-right: 30px;
+        }
+        .footer-section:last-child {
+            margin-right: 0;
+        }
+        .footer-section h4 {
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+        .footer-section ul li a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .footer-section ul li a:hover {
+            color: white;
+        }
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        .social-icons a {
+            color: white;
+            font-size: 24px;
+            transition: color 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: rgba(255,255,255,0.7);
+        }
+        .footer-bottom {
+            background-color: rgba(0,0,0,0.1);
+            padding: 15px 0;
+            text-align: center;
+        }
+        .contact-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .contact-info i {
+            margin-right: 10px;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    {% if user.is_authenticated and request.path != '/login/' %}
+    <header class="fixed-header">
+        <div class="header-container">
+            <nav class="header-nav">
+                <a href="{% url 'home' %}" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="{% url 'create_lead' %}" class="nav-link">
+                    <i class="fas fa-plus-circle"></i> Create Lead
+                </a>
+                <div class="search-container">
+                    <form action="{% url 'home' %}" method="GET" class="search-form">
+                        <input type="text" 
+                               name="query" 
+                               placeholder="Search leads, biometrics..." 
+                               class="search-input" 
+                               autocomplete="off">
+                        <button type="submit" class="search-button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+            </nav>
+            
+            <div class="header-icons">
+                <div class="header-notification" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                    <div id="notificationDropdown" class="notification-dropdown">
+                        <div class="notification-header">
+                            <h4>Notifications</h4>
+                            <a href="#" class="mark-all-read">Mark all as read</a>
+                        </div>
+                        <div class="notification-list">
+                        </div>
+                        <div class="notification-footer">
+                            <a href="{% url 'lead_history' %}" class="view-all-notifications">View All Notifications</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-container">
+                    <div class="profile-dropdown">
+                        <a href="#" class="profile-trigger" onclick="toggleDropdown()">
+                            <img src="{% static 'images/default-avatar.svg' %}" 
+                                 alt="{{ user.username }}'s avatar" 
+                                 class="profile-avatar">
+                            <span class="profile-username">{{ user.username }}</span>
+                            <i class="fas fa-caret-down"></i>
+                        </a>
+                        <div id="userDropdown" class="profile-menu" style="display: none;">
+                            <a href="{% url 'user_details' %}">
+                                <i class="fas fa-user-circle"></i> Profile
+                            </a>
+                            <a href="{% url 'logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    {% endif %}
+
+    <div class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    {% if user.is_authenticated and request.path != '/login/' %}
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'about' %}">About Us</a></li>
+                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Our Services</h4>
+                <ul>
+                    <li><a href="#">Lead Management</a></li>
+                    <li><a href="#">Biometric Tracking</a></li>
+                    <li><a href="#">Data Analysis</a></li>
+                    <li><a href="#">Reporting</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Information</h4>
+                <div class="contact-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <p>123 Biometric Street, Tech City, CA 94000</p>
+                </div>
+                <div class="contact-info">
+                    <i class="fas fa-phone"></i>
+                    <p>(555) 123-4567</p>
+                </div>
+                <div class="contact-info">
+                    <i class="fas fa-envelope"></i>
+                    <p>support@biometricleads.com</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Connect With Us</h4>
+                <div class="social-icons">
+                    <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Biometric Leads. All Rights Reserved.</p>
+        </div>
+    </footer>
+    {% endif %}
+
+    {% block extra_scripts %}
+    <script>
+        // Fetch unread notifications count
+        function updateNotificationBadge() {
+            // Only attempt to fetch if user is authenticated
+            if (document.querySelector('.header-notification')) {
+                fetch("{% url 'unread_notifications_count' %}", {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const badge = document.querySelector('.notification-badge');
+                    if (badge) {
+                        badge.textContent = data.unread_count;
+                        badge.style.display = data.unread_count > 0 ? 'flex' : 'none';
+                    }
+                })
+                .catch(error => {
+                    console.warn('Error fetching unread count:', error);
+                });
+            }
+        }
+
+        // Update badge on page load
+        document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+
+        function toggleNotifications() {
+            var dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('show');
+            
+            // Fetch and populate notifications when dropdown is opened
+            if (dropdown.classList.contains('show')) {
+                fetchRecentNotifications();
+            }
+        }
+
+        function fetchRecentNotifications() {
+            fetch("{% url 'notifications_list' %}?recent=true", {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const notificationList = document.querySelector('.notification-list');
+                notificationList.innerHTML = ''; // Clear existing notifications
+
+                data.notifications.forEach(notification => {
+                    const notificationItem = createNotificationElement(notification);
+                    notificationList.appendChild(notificationItem);
+                });
+
+                // Update badge
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = data.unread_count > 0 ? 'flex' : 'none';
+                }
+            })
+            .catch(error => {
+                console.warn('Error fetching notifications:', error);
+                const notificationList = document.querySelector('.notification-list');
+                notificationList.innerHTML = `
+                    <div class="notification-item">
+                        <p>Unable to load notifications. Please try again later.</p>
+                    </div>
+                `;
+            });
+        }
+
+        function createNotificationElement(notification) {
+            const div = document.createElement('div');
+            div.classList.add('notification-item');
+            if (!notification.is_read) {
+                div.classList.add('unread');
+            }
+            
+            // Set data attributes for routing
+            div.setAttribute('data-notification-id', notification.id);
+            div.setAttribute('data-type', notification.type);
+            div.setAttribute('data-ref-id', notification.ref_id || '');
+
+            div.innerHTML = `
+                <div class="notification-icon">
+                    ${getNotificationIcon(notification.type)}
+                </div>
+                <div class="notification-content">
+                    <p>${notification.message}</p>
+                    <span class="notification-time">${notification.created_at}</span>
+                </div>
+                <div class="notification-actions">
+                    ${!notification.is_read ? '<button class="btn-read">Mark Read</button>' : ''}
+                </div>
+            `;
+
+            // Add event listener for marking individual notification as read
+            const markReadBtn = div.querySelector('.btn-read');
+            if (markReadBtn) {
+                markReadBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    markNotificationAsRead(notification.id);
+                });
+            }
+
+            // Add click event to open notification
+            div.addEventListener('click', function(e) {
+                if (!e.target.classList.contains('btn-read')) {
+                    openNotification(notification.type, notification.ref_id);
+                }
+            });
+
+            return div;
+        }
+
+        function markNotificationAsRead(notificationId) {
+            fetch(`/notifications/mark-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update badge and remove notification from list
+                updateNotificationBadge();
+                fetchRecentNotifications();
+            })
+            .catch(error => {
+                console.warn('Error marking notification as read:', error);
+            });
+        }
+
+        function openNotification(type, referenceId) {
+            switch(type) {
+                case 'lead_assigned':
+                case 'lead_status_change':
+                    window.location.href = `/lead/${referenceId}/`;
+                    break;
+                case 'biometric_status_change':
+                    window.location.href = `/biometric/${referenceId}/`;
+                    break;
+                case 'weekly_report':
+                    window.location.href = `/reports/weekly/`;
+                    break;
+                default:
+                    window.location.href = '/notifications/';
+            }
+        }
+
+        function getNotificationIcon(type) {
+            const icons = {
+                'lead_assigned': '<i class="fas fa-user-plus"></i>',
+                'lead_status_change': '<i class="fas fa-sync"></i>',
+                'biometric_status_change': '<i class="fas fa-fingerprint"></i>',
+                'weekly_report': '<i class="fas fa-chart-line"></i>',
+                'system_alert': '<i class="fas fa-bell"></i>'
+            };
+            return icons[type] || '<i class="fas fa-bell"></i>';
+        }
+
+        // Utility function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+    <script>
+        function toggleDropdown() {
+            var dropdown = document.getElementById('userDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+    {% endblock %}
+</body>
+</html>

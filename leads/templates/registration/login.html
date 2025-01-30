@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - Biometric Leads{% endblock %}
+
+{% block extra_head %}
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f2f5;
+    }
+    .login-container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+    }
+    .login-container h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+    .login-container form {
+        display: flex;
+        flex-direction: column;
+    }
+    .login-container label {
+        margin-bottom: 5px;
+        color: #555;
+    }
+    .login-container input {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .login-container button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .login-container button:hover {
+        background-color: #45a049;
+    }
+    .login-container p {
+        text-align: center;
+        margin-top: 15px;
+    }
+    .login-container a {
+        color: #3498db;
+        text-decoration: none;
+    }
+    .error-message {
+        color: red;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Login to Biometric Leads</h2>
+    {% if form.errors %}
+        <p class="error-message">Your username and password didn't match. Please try again.</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="{{ form.username.id_for_label }}">Username:</label>
+        {{ form.username }}
+        
+        <label for="{{ form.password.id_for_label }}">Password:</label>
+        {{ form.password }}
+        
+        <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p>
+    <p><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
+</div>
+{% endblock %}

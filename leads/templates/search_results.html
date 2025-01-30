@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="search-results-container">
+    <h2>Search Results for "{{ query }}"</h2>
+    
+    {% if total_results == 0 %}
+    <div class="no-results">
+        <p>No results found. Try a different search term.</p>
+    </div>
+    {% else %}
+    <div class="search-summary">
+        <p>Total Results: {{ total_results }}</p>
+    </div>
+
+    <div class="search-results-grid">
+        {% if results.leads %}
+        <div class="results-section">
+            <h3>Leads ({{ results.leads.count }})</h3>
+            <table class="search-results-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in results.leads %}
+                    <tr>
+                        <td>{{ lead.name }}</td>
+                        <td>{{ lead.email }}</td>
+                        <td>{{ lead.location }}</td>
+                        <td>
+                            <span class="status-badge 
+                                {% if lead.status == 'new' %}badge-primary
+                                {% elif lead.status == 'in_progress' %}badge-warning
+                                {% elif lead.status == 'approved' %}badge-success
+                                {% elif lead.status == 'rejected' %}badge-danger
+                                {% endif %}">
+                                {{ lead.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-info">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if results.biometrics %}
+        <div class="results-section">
+            <h3>Biometrics ({{ results.biometrics.count }})</h3>
+            <table class="search-results-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>User</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for biometric in results.biometrics %}
+                    <tr>
+                        <td>{{ biometric.name }}</td>
+                        <td>{{ biometric.location }}</td>
+                        <td>{{ biometric.user.username }}</td>
+                        <td>
+                            <span class="status-badge 
+                                {% if biometric.status == 'pending' %}badge-warning
+                                {% elif biometric.status == 'approved' %}badge-success
+                                {% elif biometric.status == 'rejected' %}badge-danger
+                                {% endif %}">
+                                {{ biometric.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-info">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.search-results-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.no-results {
+    text-align: center;
+    color: #6c757d;
+    padding: 50px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+}
+
+.search-summary {
+    background-color: #e9ecef;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.search-results-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.results-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.search-results-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.search-results-table th {
+    background-color: #f1f3f5;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.search-results-table td {
+    padding: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8em;
+}
+
+.badge-primary { background-color: #007bff; color: white; }
+.badge-warning { background-color: #ffc107; color: #212529; }
+.badge-success { background-color: #28a745; color: white; }
+.badge-danger { background-color: #dc3545; color: white; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Optional: Add any client-side search enhancements here
+});
+</script>
+{% endblock %}

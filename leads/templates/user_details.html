@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Profile -->
+        <div class="col-md-3 bg-light sidebar">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>{{ user.username }}'s Profile</h4>
+                </div>
+                <div class="card-body text-center">
+                    <h5>{{ user.first_name }} {{ user.last_name }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-white bg-info mb-3">
+                        <div class="card-header">Biometrics</div>
+                        <div class="card-body">
+                            <h3>{{ biometric_status_count.total|default:0 }}</h3>
+                            <p>
+                                Pending: {{ biometric_status_count.pending|default:0 }} | 
+                                Approved: {{ biometric_status_count.approved|default:0 }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-warning mb-3">
+                        <div class="card-header">Notifications</div>
+                        <div class="card-body">
+                            <h3>{{ notification_status_count.total|default:0 }}</h3>
+                            <p>
+                                Unread: {{ notification_status_count.unread|default:0 }} | 
+                                Read: {{ notification_status_count.read|default:0 }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Biometrics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-dna"></i> Recent Biometrics
+                </div>
+                <div class="card-body">
+                    {% if recent_biometrics %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Created At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for biometric in recent_biometrics %}
+                                    <tr>
+                                        <td>{{ biometric.name }}</td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if biometric.status == 'pending' %}bg-warning
+                                                {% elif biometric.status == 'approved' %}bg-success
+                                                {% elif biometric.status == 'rejected' %}bg-danger
+                                                {% endif %}">
+                                                {{ biometric.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ biometric.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <a href="{% url 'biometric_detail' biometric.id %}" class="btn btn-sm btn-info">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent biometrics found.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Notifications -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bell"></i> Recent Notifications
+                </div>
+                <div class="card-body">
+                    {% if recent_notifications %}
+                        <div class="list-group">
+                            {% for notification in recent_notifications %}
+                            <div class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ notification.message }}</h5>
+                                    <small>{{ notification.created_at|timesince }} ago</small>
+                                </div>
+                                <p class="mb-1">
+                                    {% if notification.lead %}
+                                        Related Lead: {{ notification.lead.name }}
+                                    {% elif notification.biometric %}
+                                        Related Biometric: {{ notification.biometric.name }}
+                                    {% endif %}
+                                </p>
+                                <small class="text-muted">
+                                    Type: {{ notification.get_notification_type_display }}
+                                </small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent notifications found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        min-height: 100vh;
+        border-right: 1px solid #e0e0e0;
+    }
+
+    .card-header {
+        font-weight: bold;
+    }
+
+    .table-responsive {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Process Biometric{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Process Biometric: {{ biometric.name }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="biometric-details mb-4">
+                        <h4>Biometric Details</h4>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Name</th>
+                                <td>{{ biometric.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Location</th>
+                                <td>{{ biometric.location }}</td>
+                            </tr>
+                            <tr>
+                                <th>Current Status</th>
+                                <td>{{ biometric.status }}</td>
+                            </tr>
+                            {% if biometric.lead %}
+                            <tr>
+                                <th>Associated Lead</th>
+                                <td>{{ biometric.lead.name }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Action</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="action" id="approve" value="approve" autocomplete="off">
+                                <label class="btn btn-outline-success" for="approve">Approve</label>
+
+                                <input type="radio" class="btn-check" name="action" id="reject" value="reject" autocomplete="off">
+                                <label class="btn btn-outline-danger" for="reject">Reject</label>
+                            </div>
+                        </div>
+
+                        <div id="rejectionReasonGroup" class="mb-3" style="display:none;">
+                            <label for="rejectionReason" class="form-label">Rejection Reason</label>
+                            <textarea class="form-control" id="rejectionReason" name="rejection_reason" rows="3"></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary" id="submitButton" disabled>Submit Decision</button>
+                            <a href="{% url 'biometric_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const approveRadio = document.getElementById('approve');
+        const rejectRadio = document.getElementById('reject');
+        const rejectionReasonGroup = document.getElementById('rejectionReasonGroup');
+        const submitButton = document.getElementById('submitButton');
+        const rejectionReason = document.getElementById('rejectionReason');
+
+        [approveRadio, rejectRadio].forEach(radio => {
+            radio.addEventListener('change', function() {
+                submitButton.disabled = false;
+                
+                if (rejectRadio.checked) {
+                    rejectionReasonGroup.style.display = 'block';
+                    rejectionReason.required = true;
+                } else {
+                    rejectionReasonGroup.style.display = 'none';
+                    rejectionReason.required = false;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

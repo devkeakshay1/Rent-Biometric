@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Welcome to the Home Page</h1>
+    <p>This is the main page after login.</p>
+    <h2>Lead Details</h2>
+    <table border="1">
+        <tr>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Created At</th>
+        </tr>
+        {% for lead in leads %}
+        <tr>
+            <td>{{ lead.location }}</td>
+            <td>{{ lead.get_status_display }}</td>
+            <td>{{ lead.created_at }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{% url 'logout' %}">Logout</a>
+</body>
+</html>
