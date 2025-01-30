@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Internal Server Error{% endblock %}
+
+{% block content %}
+<div class="container error-page">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 text-center">
+            <h1 class="display-4 text-danger">500 - Internal Server Error</h1>
+            <p class="lead">Something went wrong on our end. Please try again later.</p>
+            <a href="{% url 'home' %}" class="btn btn-primary mt-3">Return to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

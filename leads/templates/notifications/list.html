@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="notifications-container">
+    <div class="notifications-header">
+        <h1>Notifications</h1>
+        {% if total_notifications > 0 %}
+            <a href="{% url 'mark_all_notifications_read' %}" class="mark-all-read-btn">
+                Mark All as Read
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="notifications-stats">
+        <p>Total Notifications: {{ total_notifications }}</p>
+        <p>Unread: {{ unread_count }}</p>
+    </div>
+
+    <div class="notifications-list">
+        {% if notifications %}
+            {% for notification in notifications %}
+                <div class="notification-item {% if not notification.is_read %}unread{% endif %}">
+                    <div class="notification-icon">
+                        {% if notification.type == 'lead_assigned' %}
+                            <i class="fas fa-user-plus"></i>
+                        {% elif notification.type == 'lead_status_change' %}
+                            <i class="fas fa-sync"></i>
+                        {% elif notification.type == 'biometric_status_change' %}
+                            <i class="fas fa-fingerprint"></i>
+                        {% elif notification.type == 'weekly_report' %}
+                            <i class="fas fa-chart-line"></i>
+                        {% else %}
+                            <i class="fas fa-bell"></i>
+                        {% endif %}
+                    </div>
+                    <div class="notification-content">
+                        <p>{{ notification.message }}</p>
+                        <span class="notification-time">
+                            {{ notification.created_at|timesince }} ago
+                        </span>
+                    </div>
+                    <div class="notification-actions">
+                        {% if not notification.is_read %}
+                            <a href="{% url 'mark_notification_read' notification.id %}" class="mark-read-btn">
+                                Mark Read
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-notifications">
+                <p>No notifications yet.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if is_paginated %}
+        <div class="pagination">
+            <nav aria-label="Notification page navigation">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notifications-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: var(--background-color);
+    }
+
+    .notifications-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        transition: background-color 0.2s ease;
+    }
+
+    .notification-item.unread {
+        background-color: rgba(37, 117, 252, 0.05);
+    }
+
+    .notification-icon {
+        margin-right: 15px;
+        color: var(--primary-color);
+        font-size: 1.5rem;
+    }
+
+    .notification-content {
+        flex-grow: 1;
+    }
+
+    .notification-time {
+        color: rgba(0,0,0,0.5);
+        font-size: 0.8rem;
+    }
+
+    .mark-read-btn {
+        color: var(--primary-color);
+        text-decoration: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+
+    .mark-read-btn:hover {
+        background-color: rgba(37, 117, 252, 0.1);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination .page-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        padding: 8px 12px;
+        border: 1px solid rgba(0,0,0,0.1);
+        margin: 0 5px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: rgba(37, 117, 252, 0.1);
+    }
+</style>
+{% endblock %}

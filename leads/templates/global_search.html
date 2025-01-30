@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Global Search{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Search Results for "{{ query }}"</h1>
+    
+    <div class="search-summary mb-3">
+        <p>Total Results: {{ total_results }}</p>
+    </div>
+
+    {% if leads %}
+    <div class="leads-section mb-4">
+        <h2>Leads ({{ leads.count }})</h2>
+        <div class="list-group">
+            {% for lead in leads %}
+            <a href="{% url 'lead_detail' lead.id %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ lead.name }}</h5>
+                    <small>{{ lead.created_at|date:"M d, Y" }}</small>
+                </div>
+                <p class="mb-1">{{ lead.email }} | {{ lead.location }}</p>
+                <small class="text-muted">Status: {{ lead.status }}</small>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if biometrics %}
+    <div class="biometrics-section mb-4">
+        <h2>Biometrics ({{ biometrics.count }})</h2>
+        <div class="list-group">
+            {% for biometric in biometrics %}
+            <a href="{% url 'biometric_detail' biometric.id %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ biometric.name }}</h5>
+                    <small>{{ biometric.created_at|date:"M d, Y" }}</small>
+                </div>
+                <p class="mb-1">{{ biometric.location }}</p>
+                <small class="text-muted">Status: {{ biometric.status }}</small>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if notifications %}
+    <div class="notifications-section mb-4">
+        <h2>Notifications ({{ notifications.count }})</h2>
+        <div class="list-group">
+            {% for notification in notifications %}
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ notification.message }}</h5>
+                    <small>{{ notification.created_at|date:"M d, Y H:i" }}</small>
+                </div>
+                <p class="mb-1">Type: {{ notification.notification_type }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not leads and not biometrics and not notifications %}
+    <div class="alert alert-info" role="alert">
+        No results found for "{{ query }}".
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

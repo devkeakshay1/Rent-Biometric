@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Biometric Details: {{ biometric.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Biometric Details</h2>
+                    <span class="badge 
+                        {% if biometric.status == 'pending' %}bg-warning
+                        {% elif biometric.status == 'approved' %}bg-success
+                        {% elif biometric.status == 'rejected' %}bg-danger
+                        {% endif %}">
+                        {{ biometric.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h4>Personal Information</h4>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Name:</th>
+                                    <td>{{ biometric.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Location:</th>
+                                    <td>{{ biometric.location|default:"Not Specified" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Biometric Tracking</h4>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Created At:</th>
+                                    <td>{{ biometric.created_at|date:"M d, Y H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Last Updated:</th>
+                                    <td>{{ biometric.updated_at|date:"M d, Y H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Created By:</th>
+                                    <td>{{ biometric.user.username|default:"System" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if biometric.lead %}
+                    <div class="mt-4">
+                        <h4>Associated Lead</h4>
+                        <div class="card">
+                            <div class="card-body">
+                                <p>
+                                    <strong>Name:</strong> {{ biometric.lead.name }}<br>
+                                    <strong>Status:</strong> 
+                                    <span class="badge 
+                                        {% if biometric.lead.status == 'new' %}bg-secondary
+                                        {% elif biometric.lead.status == 'in_progress' %}bg-warning
+                                        {% elif biometric.lead.status == 'approved' %}bg-success
+                                        {% elif biometric.lead.status == 'rejected' %}bg-danger
+                                        {% endif %}">
+                                        {{ biometric.lead.get_status_display }}
+                                    </span>
+                                </p>
+                                <a href="{% url 'lead_detail' biometric.lead.id %}" class="btn btn-sm btn-info">
+                                    View Lead Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if biometric.status == 'pending' %}
+                    <div class="mt-4 d-flex justify-content-between">
+                        <div>
+                            <a href="{% url 'process_biometric' biometric.id 'approve' %}" class="btn btn-success">
+                                Approve Biometric
+                            </a>
+                            <a href="{% url 'process_biometric' biometric.id 'reject' %}" class="btn btn-danger">
+                                Reject Biometric
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if biometric.status == 'rejected' and biometric.rejection_reason %}
+                    <div class="mt-4">
+                        <h4>Rejection Details</h4>
+                        <div class="alert alert-danger">
+                            <strong>Reason for Rejection:</strong>
+                            <p>{{ biometric.rejection_reason }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4 text-end">
+                        <a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

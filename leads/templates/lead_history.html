@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 bg-light sidebar">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-history"></i> Lead History
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="get">
+                        <!-- Status Filter -->
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                {% for status, label in unique_statuses %}
+                                    <option value="{{ status }}" 
+                                            {% if request.GET.status == status %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Location Filter -->
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <select name="location" id="location" class="form-select">
+                                <option value="">All Locations</option>
+                                {% for loc in unique_locations %}
+                                    <option value="{{ loc }}" 
+                                            {% if request.GET.location == loc %}selected{% endif %}>
+                                        {{ loc }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Date From Filter -->
+                        <div class="mb-3">
+                            <label for="date_from" class="form-label">From Date</label>
+                            <input type="date" name="date_from" id="date_from" 
+                                   class="form-control" 
+                                   value="{{ request.GET.date_from }}">
+                        </div>
+
+                        <!-- Date To Filter -->
+                        <div class="mb-3">
+                            <label for="date_to" class="form-label">To Date</label>
+                            <input type="date" name="date_to" id="date_to" 
+                                   class="form-control" 
+                                   value="{{ request.GET.date_to }}">
+                        </div>
+
+                        <!-- Filter Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                            <a href="{% url 'lead_history' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-md-9 col-lg-10 ms-sm-auto px-4">
+            <!-- Overview Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-header">Total Leads</div>
+                        <div class="card-body">
+                            <h2 class="card-title">{{ total_leads }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-header">Approved Leads</div>
+                        <div class="card-body">
+                            <h2 class="card-title">{{ approved_leads_count }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-danger mb-3">
+                        <div class="card-header">Rejected Leads</div>
+                        <div class="card-body">
+                            <h2 class="card-title">{{ rejected_leads_count }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Breakdown -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <i class="fas fa-chart-pie"></i> Status Breakdown
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Status</th>
+                                        <th>Count</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for status in status_breakdown %}
+                                    <tr>
+                                        <td>{{ status.status|title }}</td>
+                                        <td>{{ status.count }}</td>
+                                        <td>
+                                            {{ status.count|divide_by:total_leads|multiply_by:100|floatformat:2 }}%
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Breakdown -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <i class="fas fa-map-marker-alt"></i> Location Breakdown
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Location</th>
+                                        <th>Count</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for location in location_breakdown %}
+                                    <tr>
+                                        <td>{{ location.location }}</td>
+                                        <td>{{ location.count }}</td>
+                                        <td>
+                                            {{ location.count|divide_by:total_leads|multiply_by:100|floatformat:2 }}%
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leads Table -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table"></i> Lead Details
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lead in leads %}
+                                <tr>
+                                    <td>{{ lead.id }}</td>
+                                    <td>{{ lead.name }}</td>
+                                    <td>{{ lead.email }}</td>
+                                    <td>{{ lead.location }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if lead.status == 'new' %}bg-info
+                                            {% elif lead.status == 'in_progress' %}bg-warning
+                                            {% elif lead.status == 'approved' %}bg-success
+                                            {% elif lead.status == 'rejected' %}bg-danger
+                                            {% endif %}">
+                                            {{ lead.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ lead.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="dropdown" 
+                                                    aria-expanded="false">
+                                                Actions
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" 
+                                                       href="{% url 'update_lead_status' lead.id 'approved' %}">
+                                                        Approve
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" 
+                                                       href="{% url 'update_lead_status' lead.id 'in_progress' %}">
+                                                        Hold
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" 
+                                                       href="{% url 'update_lead_status' lead.id 'rejected' %}">
+                                                        Reject
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">No leads found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Page navigation" class="d-flex justify-content-center">
+                        <ul class="pagination">
+                            {% if leads.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ leads.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item disabled">
+                                <span class="page-link">Page {{ leads.number }} of {{ leads.paginator.num_pages }}</span>
+                            </li>
+
+                            {% if leads.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ leads.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ leads.paginator.num_pages }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bell"></i> Recent Notifications
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for notification in notifications %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ notification.message }}
+                        <span class="badge bg-primary rounded-pill">
+                            {{ notification.created_at|timesince }} ago
+                        </span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center">No notifications</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterForm = document.querySelector('form');
+        const clearBtn = filterForm.querySelector('a.btn-secondary');
+        
+        clearBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            filterForm.querySelectorAll('select, input').forEach(field => {
+                field.value = '';
+            });
+            window.location.href = "{% url 'lead_history' %}";
+        });
+    });
+</script>
+{% endblock %}

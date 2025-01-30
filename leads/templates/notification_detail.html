@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Notification Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">
+                        <i class="fas fa-bell"></i> Notification Details
+                    </h2>
+                    <span class="badge 
+                        {% if notification.is_read %}bg-secondary{% else %}bg-danger{% endif %}">
+                        {{ 'Read' if notification.is_read else 'Unread' }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="notification-content mb-4">
+                        <h4 class="mb-3">{{ notification.message }}</h4>
+                        
+                        <div class="notification-metadata">
+                            <p>
+                                <strong>Type:</strong> 
+                                <span class="badge bg-info">
+                                    {{ notification.get_notification_type_display }}
+                                </span>
+                            </p>
+                            <p>
+                                <strong>Received:</strong> 
+                                {{ notification.created_at|date:"F d, Y H:i" }}
+                                <small class="text-muted">({{ notification.created_at|timesince }} ago)</small>
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if related_object %}
+                    <div class="related-object-section mt-4">
+                        <h5>Related {{ related_object_type|title }}</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Name:</strong> {{ related_object.name }}
+                                        <br>
+                                        <strong>Status:</strong> 
+                                        <span class="badge 
+                                            {% if related_object_type == 'lead' %}
+                                                {% if related_object.status == 'new' %}bg-secondary
+                                                {% elif related_object.status == 'in_progress' %}bg-warning
+                                                {% elif related_object.status == 'approved' %}bg-success
+                                                {% elif related_object.status == 'rejected' %}bg-danger
+                                                {% endif %}
+                                            {% elif related_object_type == 'biometric' %}
+                                                {% if related_object.status == 'pending' %}bg-warning
+                                                {% elif related_object.status == 'approved' %}bg-success
+                                                {% elif related_object.status == 'rejected' %}bg-danger
+                                                {% endif %}
+                                            {% endif %}">
+                                            {{ related_object.get_status_display }}
+                                        </span>
+                                    </div>
+                                    <a href="{{ related_object_url }}" class="btn btn-sm btn-primary">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="actions mt-4 d-flex justify-content-between">
+                        <a href="{% url 'all_notifications' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Notifications
+                        </a>
+                        {% if not notification.is_read %}
+                        <a href="{% url 'mark_single_notification_read' notification.id %}" class="btn btn-success">
+                            <i class="fas fa-check"></i> Mark as Read
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

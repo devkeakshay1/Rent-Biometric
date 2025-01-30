@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}All Notifications{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">
+                        <i class="fas fa-bell"></i> Notifications
+                    </h2>
+                    <div class="header-actions">
+                        <span class="badge bg-light text-dark mr-2">
+                            Total: {{ total_notifications }} | 
+                            Unread: {{ unread_count }}
+                        </span>
+                        {% if unread_count > 0 %}
+                        <a href="{% url 'mark_all_notifications_read' %}" class="btn btn-sm btn-success">
+                            Mark All Read
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Filters -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <form method="get" class="d-flex justify-content-between align-items-center">
+                                <div class="filter-group">
+                                    <label class="mr-2">Status:</label>
+                                    <select name="status" class="form-control d-inline-block w-auto" onchange="this.form.submit()">
+                                        <option value="">All</option>
+                                        <option value="read" {% if current_status == 'read' %}selected{% endif %}>Read</option>
+                                        <option value="unread" {% if current_status == 'unread' %}selected{% endif %}>Unread</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="filter-group">
+                                    <label class="mr-2">Type:</label>
+                                    <select name="type" class="form-control d-inline-block w-auto" onchange="this.form.submit()">
+                                        <option value="">All Types</option>
+                                        {% for type_value, type_label in notification_type_choices %}
+                                        <option value="{{ type_value }}" 
+                                                {% if current_type == type_value %}selected{% endif %}>
+                                            {{ type_label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Notifications List -->
+                    {% if notifications %}
+                        <div class="list-group">
+                            {% for notification in notifications %}
+                            <div class="list-group-item list-group-item-action 
+                                {% if not notification.is_read %}list-group-item-primary{% endif %}">
+                                <a href="{% url 'notification_detail' notification.id %}" class="text-decoration-none text-dark">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">
+                                            {% if notification.lead %}
+                                                <i class="fas fa-user-tie"></i> Lead Notification
+                                            {% elif notification.biometric %}
+                                                <i class="fas fa-dna"></i> Biometric Notification
+                                            {% else %}
+                                                <i class="fas fa-bell"></i> System Notification
+                                            {% endif %}
+                                            {{ notification.message }}
+                                        </h5>
+                                        <small class="text-muted">
+                                            {{ notification.created_at|timesince }} ago
+                                            {% if not notification.is_read %}
+                                                <span class="badge bg-danger ml-2">New</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <p class="mb-1 text-muted">
+                                        {% if notification.lead %}
+                                            Related Lead: {{ notification.lead.name }}
+                                        {% elif notification.biometric %}
+                                            Related Biometric: {{ notification.biometric.name }}
+                                        {% endif %}
+                                    </p>
+                                    <small class="text-muted">
+                                        Type: {{ notification.get_notification_type_display }}
+                                    </small>
+                                </a>
+                                {% if not notification.is_read %}
+                                <div class="mt-2">
+                                    <a href="#" class="btn btn-sm btn-outline-primary mark-read-btn" 
+                                       data-notification-id="{{ notification.id }}">
+                                        Mark as Read
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-center mt-3">
+                            <nav aria-label="Notification page navigation">
+                                <ul class="pagination">
+                                    {% if notifications.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1&status={{ current_status }}&type={{ current_type }}">First</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ notifications.previous_page_number }}&status={{ current_status }}&type={{ current_type }}">Previous</a>
+                                    </li>
+                                    {% endif %}
+
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            Page {{ notifications.number }} of {{ notifications.paginator.num_pages }}
+                                        </span>
+                                    </li>
+
+                                    {% if notifications.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ notifications.next_page_number }}&status={{ current_status }}&type={{ current_type }}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ notifications.paginator.num_pages }}&status={{ current_status }}&type={{ current_type }}">Last</a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-bell-slash"></i> No notifications found.
+                            {% if current_status or current_type %}
+                            <p class="mt-2">Try clearing your filters.</p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mark individual notification as read
+    const markReadButtons = document.querySelectorAll('.mark-read-btn');
+    markReadButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const notificationId = this.getAttribute('data-notification-id');
+            
+            fetch(`/mark-notification-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Remove the 'new' badge and mark as read
+                    const listItem = this.closest('.list-group-item');
+                    listItem.classList.remove('list-group-item-primary');
+                    this.remove();
+                    
+                    // Update unread count
+                    const unreadCountElement = document.querySelector('.badge-light');
+                    if (unreadCountElement) {
+                        const currentUnreadCount = parseInt(unreadCountElement.textContent.split('Unread: ')[1]);
+                        unreadCountElement.textContent = `Total: ${currentUnreadCount - 1} | Unread: ${currentUnreadCount - 1}`;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error marking notification as read:', error);
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

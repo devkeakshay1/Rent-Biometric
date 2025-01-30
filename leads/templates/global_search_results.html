@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">
+                        <i class="fas fa-search"></i> Search Results
+                    </h2>
+                    <span class="badge bg-light text-dark">
+                        Total Results: {{ total_results }}
+                    </span>
+                </div>
+                
+                <div class="card-body">
+                    {% if query %}
+                        <h4 class="mb-4">Results for "{{ query }}"</h4>
+                    {% endif %}
+                    
+                    {% if total_results == 0 %}
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-search"></i> No results found.
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Name</th>
+                                        <th>Details</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in results %}
+                                    <tr>
+                                        <td>
+                                            {% if result.type == 'Lead' %}
+                                                <span class="badge bg-info">Lead</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Biometric</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ result.name }}</td>
+                                        <td>
+                                            {% if result.type == 'Lead' %}
+                                                {{ result.email }} | {{ result.phone }} | {{ result.company }}
+                                            {% else %}
+                                                {{ result.description|truncatechars:50 }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if result.status == 'New' or result.status == 'Pending' %}bg-warning
+                                                {% elif result.status == 'Approved' %}bg-success
+                                                {% elif result.status == 'Rejected' %}bg-danger
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ result.status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ result.detail_url }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if is_paginated %}
+                        <div class="d-flex justify-content-center mt-3">
+                            <nav aria-label="Search results pagination">
+                                <ul class="pagination">
+                                    {% if results.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&page=1">First</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&page={{ results.previous_page_number }}">Previous</a>
+                                    </li>
+                                    {% endif %}
+
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            Page {{ results.number }} of {{ results.paginator.num_pages }}
+                                        </span>
+                                    </li>
+
+                                    {% if results.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&page={{ results.next_page_number }}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&page={{ results.paginator.num_pages }}">Last</a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
